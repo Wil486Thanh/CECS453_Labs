@@ -86,6 +86,14 @@ class MortgageCalculator {
     required this.rate,
     required this.years,
   }) : assert(years >= 0 && amount >= 0 && rate >= 0);
+  
+  String get amountFormatted {
+    return '\$${this.amount.toStringAsFixed(2)}';
+  }
+  
+  String get rateFormatted {
+    return '${(this.rate * 100).toStringAsFixed(2)}%';
+  }
 
   int get months {
     return this.years * 12;
