@@ -26,6 +26,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   String? _selectedYear;
   
+  MortgageCalculator calc = MortgageCalculator(
+    amount: 100000,
+    rate: 0.035,
+    years: 30,
+  );
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +42,32 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Row(
+              mainAxisAlignment: .center,
+              children: [
+                Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    Text("Amount: "),
+                    Text("Rate: "),
+                    Text("Years: "),
+                    Text("Monthly Payment: "),
+                    Text("Total Payment: "),
+                  ]
+                ),
+                Column(
+                  crossAxisAlignment: .end,
+                  children: [
+                    Text(calc.amountFormatted),
+                    Text(calc.rateFormatted),
+                    Text(calc.years.toString()),
+                    Text(calc.monthlyPaymentFormatted),
+                    Text(calc.totalPaymentFormatted),
+                  ]
+                ),
+              ]
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
               child: const Text('Modify Data'),
               onPressed: () async {
@@ -47,7 +79,7 @@ class _MainScreenState extends State<MainScreen> {
                 });
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text('Selected Pizza: $_selectedYear')
           ],
         ),
