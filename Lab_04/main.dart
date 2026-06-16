@@ -73,3 +73,43 @@ class ModifyDataScreen extends StatelessWidget {
     );
   }
 }
+
+class MortgageCalculator {
+  double amount;
+  double rate;
+  int years;
+
+  // the assert call at the bottom validates the values
+  MortgageCalculator({
+    required this.amount,
+    required this.rate,
+    required this.years,
+  }) : assert(years >= 0 && amount >= 0 && rate >= 0);
+
+  int get months {
+    return this.years * 12;
+  }
+  
+  double get monthRate {
+    return this.rate / 12;
+  }
+
+  double get monthlyPayment {
+    double periodRate = pow(1+this.monthRate, this.months) as double;
+    double finalValue = this.amount * ((this.monthRate*periodRate)/(periodRate-1));
+   
+    return finalValue;
+  }
+  
+  String get monthlyPaymentFormatted {
+    return '\$${this.monthlyPayment.toStringAsFixed(2)}';
+  }
+  
+  double get totalPayment {
+    return this.monthlyPayment * 12 * this.years;
+  }
+  
+  String get totalPaymentFormatted {
+    return '\$${this.totalPayment.toStringAsFixed(2)}';
+  }
+}
