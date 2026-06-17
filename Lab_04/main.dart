@@ -17,6 +17,38 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class RateScreen extends StatelessWidget {
+  const RateScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final List<double> rates = [for (double x = 0.02; x <= 0.15; x += 0.0025) x];
+    return Scaffold(
+      appBar: AppBar(title: const Text("Set Interest Rate")),
+      body: Center(
+        child: ListView.builder(
+          padding: .all(8),
+          itemCount: rates.length,
+          itemBuilder: (BuildContext context, int index) {
+            return AnimatedContainer(
+              height: 50,
+              duration: const Duration(seconds: 2),
+              child: Material(
+                child: InkWell(
+                  child: Text(rates[index].toStringAsFixed(4)),
+                  onTap: () {
+                    Navigator.of(context).pop(rates[index]);
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -62,7 +94,11 @@ class _MainScreenState extends State<MainScreen> {
                           showDialog(
                             context: context,
                             builder: (context) {
-                              return AlertDialog(content: Text("Confirmed Terms and Conditions!"));
+                              return AlertDialog(
+                                content: Text(
+                                  "Confirmed Terms and Conditions!",
+                                ),
+                              );
                             },
                           );
                         });
@@ -124,6 +160,8 @@ class _ModifyDataScreenState extends State<ModifyDataScreen> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
 
+  double _rateValue = 0.035;
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -167,9 +205,20 @@ class _ModifyDataScreenState extends State<ModifyDataScreen> {
                     SizedBox(
                       height: 50,
                       width: 300,
-                      child: TextField(
-                        controller: _rateController,
-                        keyboardType: TextInputType.number,
+                      child: TextButton(
+                        onPressed: () async {
+                          final rateValue = await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const RateScreen(),
+                            ),
+                          );
+                          setState(() {
+                            {
+                              _rateValue = rateValue;
+                            }
+                          });
+                        },
+                        child: Text(_rateValue.toStringAsFixed(4)),
                       ),
                     ),
                     const SizedBox(height: 40),
@@ -191,7 +240,7 @@ class _ModifyDataScreenState extends State<ModifyDataScreen> {
                       arguments: calc = MortgageCalculator(
                         amount:
                             (double.tryParse(_amountController.text) ?? 0.0),
-                        rate: (double.tryParse(_rateController.text) ?? 0.0),
+                        rate: (_rateValue),
                         years: 30,
                       ),
                     ),
