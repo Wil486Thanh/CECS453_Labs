@@ -82,7 +82,7 @@ class _MainScreenState extends State<MainScreen> {
                     Text(calc.monthlyPaymentFormatted),
                     const SizedBox(height: 25),
                     Text(calc.totalPaymentFormatted),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 30),
                     Text("Terms and Conditions"),
                   ],
                 ),
