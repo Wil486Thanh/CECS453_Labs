@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Affirmations',
+      title: 'Mortgage Calculator',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.blue),
       home: ModifyDataScreen(),
@@ -17,12 +17,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  bool _isChecked = false;
+
+  @override
   Widget build(BuildContext context) {
-    MortgageCalculator calc = ModalRoute.of(context)!.settings.arguments as MortgageCalculator;
+    MortgageCalculator calc =
+        ModalRoute.of(context)!.settings.arguments as MortgageCalculator;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Main Screen")),
@@ -41,6 +49,20 @@ class MainScreen extends StatelessWidget {
                     Text("Years: "),
                     Text("Monthly Payment: "),
                     Text("Total Payment: "),
+                    Checkbox(
+                      value: _isChecked,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          _isChecked = newValue!;
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(content: Text("Confirmed Terms and Conditions!"));
+                            },
+                          );
+                        });
+                      },
+                    ),
                   ],
                 ),
                 Column(
