@@ -45,10 +45,15 @@ class _MainScreenState extends State<MainScreen> {
                   crossAxisAlignment: .start,
                   children: [
                     Text("Amount: "),
+                    const SizedBox(height: 25),
                     Text("Rate: "),
+                    const SizedBox(height: 25),
                     Text("Years: "),
+                    const SizedBox(height: 25),
                     Text("Monthly Payment: "),
+                    const SizedBox(height: 25),
                     Text("Total Payment: "),
+                    const SizedBox(height: 25),
                     Checkbox(
                       value: _isChecked,
                       onChanged: (bool? newValue) {
@@ -69,15 +74,21 @@ class _MainScreenState extends State<MainScreen> {
                   crossAxisAlignment: .end,
                   children: [
                     Text(calc.amountFormatted),
+                    const SizedBox(height: 25),
                     Text(calc.rateFormatted),
+                    const SizedBox(height: 25),
                     Text(calc.years.toString()),
+                    const SizedBox(height: 25),
                     Text(calc.monthlyPaymentFormatted),
+                    const SizedBox(height: 25),
                     Text(calc.totalPaymentFormatted),
+                    const SizedBox(height: 25),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
             ElevatedButton(
               child: const Text('MODIFY DATA'),
               onPressed: () {
