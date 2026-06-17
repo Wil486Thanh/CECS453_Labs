@@ -18,26 +18,23 @@ class MyApp extends StatelessWidget {
 }
 
 class MainScreen extends StatefulWidget {
-  
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
   String? _selectedYear;
-  
+
   MortgageCalculator calc = MortgageCalculator(
     amount: 100000,
     rate: 0.035,
     years: 30,
   );
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Main Screen")
-      ),
+      appBar: AppBar(title: const Text("Main Screen")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
                     Text("Years: "),
                     Text("Monthly Payment: "),
                     Text("Total Payment: "),
-                  ]
+                  ],
                 ),
                 Column(
                   crossAxisAlignment: .end,
@@ -63,13 +60,13 @@ class _MainScreenState extends State<MainScreen> {
                     Text(calc.years.toString()),
                     Text(calc.monthlyPaymentFormatted),
                     Text(calc.totalPaymentFormatted),
-                  ]
+                  ],
                 ),
-              ]
+              ],
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              child: const Text('Modify Data'),
+              child: const Text('MODIFY DATA'),
               onPressed: () async {
                 final selectedYear = await Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => ModifyDataScreen()),
@@ -79,8 +76,6 @@ class _MainScreenState extends State<MainScreen> {
                 });
               },
             ),
-            const SizedBox(height: 20),
-            Text('Selected Pizza: $_selectedYear')
           ],
         ),
       ),
@@ -88,19 +83,71 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class ModifyDataScreen extends StatelessWidget {
+class ModifyDataScreen extends StatefulWidget {
+  @override
+  _ModifyDataScreenState createState() => _ModifyDataScreenState();
+}
+
+class _ModifyDataScreenState extends State<ModifyDataScreen> {
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _rateController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Modify Data")
-      ),
+      appBar: AppBar(title: const Text("Modify Data")),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text("Go back"),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: .center,
+              children: [
+                Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    const Text("Amount: "),
+                    const SizedBox(height: 40),
+                    const Text("Rate: "),
+                    const SizedBox(height: 40),
+                    const Text("Years: "),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: .end,
+                  children: [
+                    SizedBox(
+                      height: 50,
+                      width: 300,
+                      child: TextField(
+                        controller: _amountController,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 50,
+                      width: 300,
+                      child: TextField(
+                        controller: _rateController,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    const Text("Amount: "),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              child: const Text("DONE"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -118,11 +165,11 @@ class MortgageCalculator {
     required this.rate,
     required this.years,
   }) : assert(years >= 0 && amount >= 0 && rate >= 0);
-  
+
   String get amountFormatted {
     return '\$${this.amount.toStringAsFixed(2)}';
   }
-  
+
   String get rateFormatted {
     return '${(this.rate * 100).toStringAsFixed(2)}%';
   }
@@ -130,26 +177,27 @@ class MortgageCalculator {
   int get months {
     return this.years * 12;
   }
-  
+
   double get monthRate {
     return this.rate / 12;
   }
 
   double get monthlyPayment {
-    double periodRate = pow(1+this.monthRate, this.months) as double;
-    double finalValue = this.amount * ((this.monthRate*periodRate)/(periodRate-1));
-   
+    double periodRate = pow(1 + this.monthRate, this.months) as double;
+    double finalValue =
+        this.amount * ((this.monthRate * periodRate) / (periodRate - 1));
+
     return finalValue;
   }
-  
+
   String get monthlyPaymentFormatted {
     return '\$${this.monthlyPayment.toStringAsFixed(2)}';
   }
-  
+
   double get totalPayment {
     return this.monthlyPayment * 12 * this.years;
   }
-  
+
   String get totalPaymentFormatted {
     return '\$${this.totalPayment.toStringAsFixed(2)}';
   }
