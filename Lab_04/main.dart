@@ -9,30 +9,61 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Affirmations',
+      title: 'Mortgage Calculator',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.blue),
-      home: MainScreen(),
+      home: ModifyDataScreen(),
+    );
+  }
+}
+
+class RateScreen extends StatelessWidget {
+  const RateScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final List<double> rates = [for (double x = 0.02; x <= 0.15; x += 0.0025) x];
+    return Scaffold(
+      appBar: AppBar(title: const Text("Set Interest Rate")),
+      body: Center(
+        child: ListView.builder(
+          padding: .all(8),
+          itemCount: rates.length,
+          itemBuilder: (BuildContext context, int index) {
+            return AnimatedContainer(
+              height: 50,
+              duration: const Duration(seconds: 2),
+              child: Material(
+                child: InkWell(
+                  child: Text(rates[index].toStringAsFixed(4)),
+                  onTap: () {
+                    Navigator.of(context).pop(rates[index]);
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
-  _MainScreenState createState() => _MainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String? _selectedYear;
-
-  MortgageCalculator calc = MortgageCalculator(
-    amount: 100000,
-    rate: 0.035,
-    years: 30,
-  );
+  bool _isChecked = false;
 
   @override
   Widget build(BuildContext context) {
+    MortgageCalculator calc =
+        ModalRoute.of(context)!.settings.arguments as MortgageCalculator;
+
     return Scaffold(
       appBar: AppBar(title: const Text("Main Screen")),
       body: Center(
@@ -46,34 +77,63 @@ class _MainScreenState extends State<MainScreen> {
                   crossAxisAlignment: .start,
                   children: [
                     Text("Amount: "),
+                    const SizedBox(height: 25),
                     Text("Rate: "),
+                    const SizedBox(height: 25),
                     Text("Years: "),
+                    const SizedBox(height: 25),
                     Text("Monthly Payment: "),
+                    const SizedBox(height: 25),
                     Text("Total Payment: "),
+                    const SizedBox(height: 25),
+                    Checkbox(
+                      value: _isChecked,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          _isChecked = newValue!;
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Text(
+                                  "Confirmed Terms and Conditions!",
+                                ),
+                              );
+                            },
+                          );
+                        });
+                      },
+                    ),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: .end,
                   children: [
                     Text(calc.amountFormatted),
+                    const SizedBox(height: 25),
                     Text(calc.rateFormatted),
+                    const SizedBox(height: 25),
                     Text(calc.years.toString()),
+                    const SizedBox(height: 25),
                     Text(calc.monthlyPaymentFormatted),
+                    const SizedBox(height: 25),
                     Text(calc.totalPaymentFormatted),
+                    const SizedBox(height: 30),
+                    Text("Terms and Conditions"),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
             ElevatedButton(
               child: const Text('MODIFY DATA'),
-              onPressed: () async {
-                final selectedYear = await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => ModifyDataScreen()),
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => ModifyDataScreen(),
+                  ),
                 );
-                setState(() {
-                  _selectedYear = selectedYear;
-                });
               },
             ),
           ],
@@ -84,13 +144,32 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 class ModifyDataScreen extends StatefulWidget {
+  const ModifyDataScreen({super.key});
+
   @override
-  _ModifyDataScreenState createState() => _ModifyDataScreenState();
+  State<ModifyDataScreen> createState() => _ModifyDataScreenState();
 }
 
 class _ModifyDataScreenState extends State<ModifyDataScreen> {
+  MortgageCalculator calc = MortgageCalculator(
+    amount: 100000,
+    rate: 0.035,
+    years: 30,
+  );
+
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
+  final TextEditingController _yearController = TextEditingController();
+
+  double _rateValue = 0.035;
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _rateController.dispose();
+    _yearController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,13 +207,31 @@ class _ModifyDataScreenState extends State<ModifyDataScreen> {
                     SizedBox(
                       height: 50,
                       width: 300,
+                      child: TextButton(
+                        onPressed: () async {
+                          final rateValue = await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const RateScreen(),
+                            ),
+                          );
+                          setState(() {
+                            {
+                              _rateValue = rateValue;
+                            }
+                          });
+                        },
+                        child: Text(_rateValue.toStringAsFixed(4)),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 50,
+                      width: 300,
                       child: TextField(
-                        controller: _rateController,
+                        controller: _yearController,
                         keyboardType: TextInputType.number,
                       ),
                     ),
-                    const SizedBox(height: 40),
-                    const Text("Amount: "),
                   ],
                 ),
               ],
@@ -144,7 +241,21 @@ class _ModifyDataScreenState extends State<ModifyDataScreen> {
             ElevatedButton(
               child: const Text("DONE"),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => MainScreen(),
+                    settings: RouteSettings(
+                      arguments: calc = MortgageCalculator(
+                        amount:
+                            (double.tryParse(_amountController.text) ?? 0.0),
+                        rate: (_rateValue),
+                        years:
+                            (int.parse(_yearController.text)),
+                      ),
+                    ),
+                  ),
+                );
               },
             ),
           ],
@@ -155,12 +266,12 @@ class _ModifyDataScreenState extends State<ModifyDataScreen> {
 }
 
 class MortgageCalculator {
-  double amount;
-  double rate;
-  int years;
+  final double amount;
+  final double rate;
+  final int years;
 
   // the assert call at the bottom validates the values
-  MortgageCalculator({
+  const MortgageCalculator({
     required this.amount,
     required this.rate,
     required this.years,
