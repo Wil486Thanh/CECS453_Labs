@@ -1,13 +1,3 @@
-/*
-* Currently, this is just an example.
-* The WeatherData class takes in a json object from the weather API and makes it into a concrete class
-* Note that the json must already be converted, like in this line:
-* final thingy = jsonDecode(jsonString) as Map<String, dynamic>;
-* This data class is then used to create the WeatherDisplay widget
-* this is more a reminder for myself, but I plan on creating a second screen for the user to input their desired city
-* then fetch the new json, use it to create a WeatherData instance, and pass that instance back to the main screen
-*/
-
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -29,9 +19,7 @@ class MyApp extends StatelessWidget {
 }
 
 class WeatherData {
-  // These should be all the weather data we need
-  // the image still needs to be implemented, but the imageCode can get it to us
-  // image url: "https://openweathermap.org/payload/api/media/file/${this.imageCode}.png"
+  // image code, current temp, weather conditions, city name,
   final String imageCode;
   final double tempF;
   final double highTemp;
@@ -39,8 +27,6 @@ class WeatherData {
   final String city;
   final double windSpeed;
 
-  // note that this constructor takes in the post-conversion json object
-  // since that's what the WeatherService class returns
   WeatherData.fromJson(Map<String, dynamic> json)
     : imageCode = json['weather'][0]['icon'],
       tempF = json['main']['temp'],
@@ -49,8 +35,6 @@ class WeatherData {
       city = json['name'],
       windSpeed = json['wind']['speed'];
 
-  // creates a default WeatherData object for testing
-  // uses a hardcoded json string, retrieved from the api on 6/22/26 for Fountain Valley
   factory WeatherData.defaults() {
     final defaultString =
         '{"coord":{"lon":-117.9537,"lat":33.7092},"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01d"}],"base":"stations","main":{"temp":77.2,"feels_like":77.49,"temp_min":73.06,"temp_max":83.35,"pressure":1013,"humidity":61,"sea_level":1013,"grnd_level":1009},"visibility":10000,"wind":{"speed":8.01,"deg":288,"gust":14},"clouds":{"all":0},"dt":1782168821,"sys":{"type":2,"id":2007369,"country":"US","sunrise":1782132120,"sunset":1782183936},"timezone":-25200,"id":5350207,"name":"Fountain Valley","cod":200}';
@@ -62,9 +46,7 @@ class WeatherData {
 class WeatherDisplay extends StatelessWidget {
   final WeatherData data;
   const WeatherDisplay({required this.data});
-  
-  // look I did it like this because I messed up the formatting the first time
-  // so I just assigned the data readouts to variables so I could mess with it easier lol
+
   @override
   Widget build(BuildContext context) {
     List<Widget> headerColumn = [
@@ -85,12 +67,60 @@ class WeatherDisplay extends StatelessWidget {
       SizedBox(height: 20),
       Text("${data.city}"),
     ];
-    return Row(
-      mainAxisAlignment: .center,
+    return Column(
       children: [
-        Column(crossAxisAlignment: .start, children: headerColumn),
-        Column(crossAxisAlignment: .end, children: dataColumn),
+        Image.network('https://openweathermap.org/payload/api/media/file/${data.imageCode}.png', width:50, height:50),
+        Row(
+          mainAxisAlignment: .center,
+          children: [
+            Column(crossAxisAlignment: .start, children: headerColumn),
+            Column(crossAxisAlignment: .end, children: dataColumn),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+class SelectCityPage extends StatefulWidget {
+  const SelectCityPage({super.key});
+
+  @override
+  State<SelectCityPage> createState() => _SelectCityPageState();
+}
+
+class _SelectCityPageState extends State<SelectCityPage> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          children: [
+            Text("Enter city name: "),
+            TextField(controller: _controller),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(_controller.text);
+              },
+              child: Text("Return"),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -117,14 +147,17 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             WeatherDisplay(data: pageData),
             SizedBox(height: 50),
-            // change city button 
+
+            // change city button
             ElevatedButton(
               onPressed: () async {
+                String cityName = await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SelectCityPage(),
+                  ),
+                );
                 pageData = .fromJson(
-                  // currently, you must enter the city into this field to get the data
-                  // next up is to add another screen (or popup?) 
-                  // that takes a text input and returns the value to this one
-                  await WeatherService.fetchWeather("Long Beach"),
+                  await WeatherService.fetchWeather(cityName),
                 );
                 setState(() {});
               },
@@ -141,8 +174,7 @@ class WeatherService {
   static Future<Map<String, dynamic>> fetchWeather(String city) async {
     // before we get this running somewhere other than dartpad you'll need to put your API key here
     // do NOT forget to delete it when uploading to GitHub
-    // I left it unassigned here on purpose so that it throws a compiler error
-    String apiKey = ;
+    String apiKey = '';
     final response = await http.get(
       Uri.parse(
         'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=imperial',
@@ -156,4 +188,3 @@ class WeatherService {
     }
   }
 }
-
