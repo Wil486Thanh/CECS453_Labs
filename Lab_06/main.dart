@@ -29,7 +29,9 @@ class MyApp extends StatelessWidget {
 }
 
 class WeatherData {
-  // image code, current temp, weather conditions, city name,
+  // These should be all the weather data we need
+  // the image still needs to be implemented, but the imageCode can get it to us
+  // image url: "https://openweathermap.org/payload/api/media/file/${this.imageCode}.png"
   final String imageCode;
   final double tempF;
   final double highTemp;
@@ -37,6 +39,8 @@ class WeatherData {
   final String city;
   final double windSpeed;
 
+  // note that this constructor takes in the post-conversion json object
+  // since that's what the WeatherService class returns
   WeatherData.fromJson(Map<String, dynamic> json)
     : imageCode = json['weather'][0]['icon'],
       tempF = json['main']['temp'],
@@ -45,6 +49,8 @@ class WeatherData {
       city = json['name'],
       windSpeed = json['wind']['speed'];
 
+  // creates a default WeatherData object for testing
+  // uses a hardcoded json string, retrieved from the api on 6/22/26 for Fountain Valley
   factory WeatherData.defaults() {
     final defaultString =
         '{"coord":{"lon":-117.9537,"lat":33.7092},"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01d"}],"base":"stations","main":{"temp":77.2,"feels_like":77.49,"temp_min":73.06,"temp_max":83.35,"pressure":1013,"humidity":61,"sea_level":1013,"grnd_level":1009},"visibility":10000,"wind":{"speed":8.01,"deg":288,"gust":14},"clouds":{"all":0},"dt":1782168821,"sys":{"type":2,"id":2007369,"country":"US","sunrise":1782132120,"sunset":1782183936},"timezone":-25200,"id":5350207,"name":"Fountain Valley","cod":200}';
@@ -56,7 +62,9 @@ class WeatherData {
 class WeatherDisplay extends StatelessWidget {
   final WeatherData data;
   const WeatherDisplay({required this.data});
-
+  
+  // look I did it like this because I messed up the formatting the first time
+  // so I just assigned the data readouts to variables so I could mess with it easier lol
   @override
   Widget build(BuildContext context) {
     List<Widget> headerColumn = [
@@ -109,7 +117,6 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             WeatherDisplay(data: pageData),
             SizedBox(height: 50),
-            
             // change city button 
             ElevatedButton(
               onPressed: () async {
