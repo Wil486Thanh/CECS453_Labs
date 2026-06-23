@@ -10,6 +10,7 @@
 
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(const MyApp());
 
@@ -69,10 +70,10 @@ class WeatherDisplay extends StatelessWidget {
     ];
     List<Widget> dataColumn = [
       Text("${data.imageCode}"),
-      Text("${data.tempF}"),
-      Text("${data.highTemp}"),
-      Text("${data.lowTemp}"),
-      Text("${data.windSpeed}"),
+      Text("${data.tempF} F"),
+      Text("${data.highTemp} F"),
+      Text("${data.lowTemp} F"),
+      Text("${data.windSpeed} mph"),
       SizedBox(height: 20),
       Text("${data.city}"),
     ];
@@ -96,6 +97,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  WeatherData pageData = .defaults();
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +106,46 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: .center,
-          children: [WeatherDisplay(data: WeatherData.defaults())],
+          children: [
+            WeatherDisplay(data: pageData),
+            SizedBox(height: 50),
+            
+            // change city button 
+            ElevatedButton(
+              onPressed: () async {
+                pageData = .fromJson(
+                  // currently, you must enter the city into this field to get the data
+                  // next up is to add another screen (or popup?) 
+                  // that takes a text input and returns the value to this one
+                  await WeatherService.fetchWeather("Long Beach"),
+                );
+                setState(() {});
+              },
+              child: Text("Change City"),
+            ),
+          ],
         ),
       ),
     );
+  }
+}
+
+class WeatherService {
+  static Future<Map<String, dynamic>> fetchWeather(String city) async {
+    // before we get this running somewhere other than dartpad you'll need to put your API key here
+    // do NOT forget to delete it when uploading to GitHub
+    String apiKey = ;
+    final response = await http.get(
+      Uri.parse(
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=imperial',
+      ),
+    );
+    if (response.statusCode == 200) {
+      // this was the fill in the blank line
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load weather data');
+    }
   }
 }
 
