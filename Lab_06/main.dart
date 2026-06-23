@@ -1,3 +1,13 @@
+/*
+* Currently, this is just an example.
+* The WeatherData class takes in a json object from the weather API and makes it into a concrete class
+* Note that the json must already be converted, like in this line:
+* final thingy = jsonDecode(jsonString) as Map<String, dynamic>;
+* This data class is then used to create the WeatherDisplay widget
+* this is more a reminder for myself, but I plan on creating a second screen for the user to input their desired city
+* then fetch the new json, use it to create a WeatherData instance, and pass that instance back to the main screen
+*/
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
