@@ -141,6 +141,7 @@ class WeatherService {
   static Future<Map<String, dynamic>> fetchWeather(String city) async {
     // before we get this running somewhere other than dartpad you'll need to put your API key here
     // do NOT forget to delete it when uploading to GitHub
+    // I left it unassigned here on purpose so that it throws a compiler error
     String apiKey = ;
     final response = await http.get(
       Uri.parse(
