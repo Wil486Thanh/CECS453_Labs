@@ -49,7 +49,7 @@ class Report {
 }
 
 Future<Report> fetchWeather(String city) async {
-  final apiKey = "066900a336d2d5ede1492d464249d481";
+  final apiKey = "";
   final response = await http.get(
     Uri.parse(
       'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric',
